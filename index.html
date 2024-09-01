@@ -1,12 +1,259 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Página Web</title>
+    <title>Geolocalización en Tiempo Real</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: #1e90ff;
+            margin-bottom: 20px;
+        }
+        .menu-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #1e90ff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+        .overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .menu {
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+            text-align: center;
+            transform: translateY(-50px);
+            transition: transform 0.5s ease;
+        }
+        .menu.active {
+            transform: translateY(0);
+        }
+        .menu h2 {
+            margin: 0 0 20px;
+        }
+        .menu a {
+            display: block;
+            margin: 10px 0;
+            color: #1e90ff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #222;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #1e90ff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #1c86ee;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>¡Bienvenido a mi sitio web!</h1>
-    <p>Este es mi primer sitio web usando GitHub Pages.</p>
+    <div class="container">
+        <h1>Geolocalización en Tiempo Real</h1>
+        <button class="menu-button" id="menu-button">⋮</button>
+
+        <section>
+            <h2>Descripción</h2>
+            <p>Esta aplicación permite localizar una IP en el mapa en tiempo real. Ingresa una IP para ver su ubicación.</p>
+        </section>
+
+        <section>
+            <h2>Buscar IP</h2>
+            <div class="form-group">
+                <label for="ip-input">Ingresa la IP:</label>
+                <input type="text" id="ip-input" placeholder="Ej. 8.8.8.8" />
+                <button id="search-button">Buscar</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Mapa</h2>
+            <div id="map"></div>
+        </section>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="menu" id="menu">
+            <h2>Menú</h2>
+            <a href="#" id="login-link">Iniciar sesión</a>
+            <a href="#" id="register-link">Registrarse</a>
+            <div id="login-form" style="display:none;">
+                <input type="text" id="username" placeholder="Usuario" />
+                <input type="password" id="password" placeholder="Contraseña" />
+                <button id="login-button">Iniciar Sesión</button>
+                <p id="login-message" style="color: red;"></p>
+            </div>
+            <div id="register-form" style="display:none;">
+                <input type="text" id="new-username" placeholder="Nuevo Usuario" />
+                <input type="password" id="new-password" placeholder="Nueva Contraseña" />
+                <button id="register-button">Registrarse</button>
+                <p id="register-message" style="color: green;"></p>
+            </div>
+            <a href="#" id="close-menu">Cerrar</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 Geolocalización en Tiempo Real. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        var marker = L.marker([0, 0]).addTo(map);
+
+        document.getElementById('search-button').addEventListener('click', function() {
+            var ip = document.getElementById('ip-input').value;
+            fetch(`/ip-location?ip=${ip}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    var lat = data.lat;
+                    var lon = data.lon;
+
+                    map.setView([lat, lon], 13);
+                    marker.setLatLng([lat, lon]);
+                    marker.bindPopup(`<b>IP:</b> ${ip}<br><b>Lat:</b> ${lat}<br><b>Lon:</b> ${lon}<br><b>Ciudad:</b> ${data.city}<br><b>País:</b> ${data.country}`).openPopup();
+                })
+                .catch(error => console.error('Error al obtener la ubicación:', error));
+        });
+
+        document.getElementById('menu-button').addEventListener('click', function() {
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('menu').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('close-menu').addEventListener('click', function() {
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+        });
+
+        document.getElementById('login-link').addEventListener('click', function() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        });
+
+        document.getElementById('register-link').addEventListener('click', function() {
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('login-form').style.display = 'none';
+        });
+
+        var users = {};
+
+        document.getElementById('login-button').addEventListener('click', function() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Verifica si el usuario existe y si la contraseña es correcta
+            if (users[username] && users[username] === password) {
+                document.getElementById('login-message').textContent = "Inicio de sesión exitoso!";
+                // Aquí puedes agregar lógica adicional, como redireccionar al usuario
+            } else {
+                document.getElementById('login-message').textContent = "Usuario o contraseña incorrectos.";
+            }
+        });
+
+        document.getElementById('register-button').addEventListener('click', function() {
+            var newUsername = document.getElementById('new-username').value;
+            var newPassword = document.getElementById('new-password').value;
+
+            if (newUsername && newPassword) {
+                if (users[newUsername]) {
+                    document.getElementById('register-message').textContent = "El usuario ya existe.";
+                } else {
+                    users[newUsername] = newPassword;
+                    document.getElementById('register-message').textContent = "Registro exitoso! Ahora puedes iniciar sesión.";
+                    document.getElementById('new-username').value = '';
+                    document.getElementById('new-password').value = '';
+                }
+            } else {
+                document.getElementById('register-message').textContent = "Por favor completa todos los campos.";
+            }
+        });
+    </script>
 </body>
 </html>
+```
