@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geolocalización en Tiempo Real - Aaron</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -172,7 +172,7 @@
             <h2>Buscar IP</h2>
             <div class="form-group">
                 <label for="ip-input">Ingresa la IP:</label>
-                <input type="text" id="ip-input" placeholder="Ej. 8.8.8.8" />
+                <input type="text" id="ip-input" placeholder="Ej. 8.8.8.8">
                 <button id="search-button">Buscar</button>
                 <p id="location-count"></p>
                 <div id="login-warning" class="login-warning">Necesitas iniciar sesión para realizar más de 3 geolocalizaciones.</div>
@@ -192,8 +192,8 @@
                 <button class="back-button" id="back-button">←</button>
                 <h2>Menú</h2>
                 <div id="login-form">
-                    <input type="email" id="email" placeholder="Correo Electrónico" />
-                    <input type="password" id="password" placeholder="Contraseña" />
+                    <input type="email" id="email" placeholder="Correo Electrónico">
+                    <input type="password" id="password" placeholder="Contraseña">
                     <button id="login-button">Iniciar Sesión</button>
                     <button id="forgot-password-button" class="button-separator">Olvidé mi contraseña</button>
                     <p id="login-message" style="color: red;"></p>
@@ -201,24 +201,24 @@
                 </div>
                 <div id="register-form" style="display:none;">
                     <h2>Registrarse</h2>
-                    <input type="text" id="new-username" placeholder="Nuevo Usuario" />
-                    <input type="password" id="new-password" placeholder="Nueva Contraseña" />
-                    <input type="email" id="new-email" placeholder="Correo Electrónico" />
+                    <input type="text" id="new-username" placeholder="Nuevo Usuario">
+                    <input type="password" id="new-password" placeholder="Nueva Contraseña">
+                    <input type="email" id="new-email" placeholder="Correo Electrónico">
                     <button id="submit-register-button">Registrarse</button>
                     <p id="register-message" style="color: green;"></p>
                     <button id="back-to-login-button" class="button-separator spaced-button">Volver a Iniciar Sesión</button>
                 </div>
                 <div id="recover-password-section">
                     <h2>Recuperar Contraseña</h2>
-                    <input type="email" id="recover-email" placeholder="Ingresa tu correo electrónico" />
+                    <input type="email" id="recover-email" placeholder="Ingresa tu correo electrónico">
                     <button id="send-code-button">Enviar Código</button>
                     <p id="recover-message" style="color: green;"></p>
                     <button id="back-to-login-from-recover" class="button-separator spaced-button">Volver al inicio de sesión</button>
                 </div>
                 <div id="reset-password-section">
                     <h2>Restablecer Contraseña</h2>
-                    <input type="text" id="verification-code" placeholder="Ingresa el código" />
-                    <input type="password" id="new-password-reset" placeholder="Nueva Contraseña" />
+                    <input type="text" id="verification-code" placeholder="Ingresa el código">
+                    <input type="password" id="new-password-reset" placeholder="Nueva Contraseña">
                     <button id="confirm-reset-button">Restablecer Contraseña</button>
                     <p id="reset-message" style="color: green;"></p>
                     <button id="back-to-recover-button" class="button-separator spaced-button">Volver a recuperar contraseña</button>
@@ -340,12 +340,6 @@
             document.getElementById('login-form').style.display = 'block';
         });
 
-        // Función para validar IP
-        function isValidIP(ip) {
-            const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            return regex.test(ip);
-        }
-
         // Buscar IP
         document.getElementById('search-button').addEventListener('click', function () {
             if (locationCount >= maxLocations && !isLoggedIn) {
@@ -363,11 +357,9 @@
             document.getElementById('login-warning').style.display = 'none'; // Ocultar advertencia
 
             var ip = document.getElementById('ip-input').value.trim();
-            
-            // Validar la dirección IP
-            if (!isValidIP(ip)) {
+            if (!ip) {
                 alert("Por favor, ingresa una IP válida.");
-                return; // Salir si la IP no es válida
+                return;
             }
 
             // Usando la API de ip-api.com
